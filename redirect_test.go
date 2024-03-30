@@ -1,0 +1,37 @@
+package golang_web
+
+import (
+	"fmt"
+	"net/http"
+	"testing"
+)
+
+func ReditectTo(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println(writer, "Hello Request!")
+}
+
+func RedirectFrom(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println(writer, request, "/redirect-to", http.StatusTemporaryRedirect)
+}
+
+func RedirectOut(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println(writer, request, "https://www.google.com/", http.StatusTemporaryRedirect)
+}
+
+func TestRedirect(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("redirect-from", RedirectFrom)
+	mux.HandleFunc("redirect-to", ReditectTo)
+	mux.HandleFunc("redirect-out", RedirectOut)
+
+	server := http.Server{
+		Addr:    "localhost:8080",
+		Handler: mux,
+	}
+
+	err := server.ListenAndServe()
+	if err != nil {
+		panic(err)
+	}
+
+}
